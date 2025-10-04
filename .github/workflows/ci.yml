@@ -14,26 +14,27 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Install Miniconda dan memastikan conda aktif di shell
+      # Install Miniconda dengan environment khusus
       - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
-          activate-environment: base
+          activate-environment: spotify-ci-env
+          environment-file: MLProject/conda.yaml
           python-version: "3.12.7"
           auto-update-conda: true
-          auto-activate-base: true
+          auto-activate-base: false
 
-      # Install dependencies secara eksplisit di base
-      - name: Install dependencies
+      # Pastikan conda aktif dan install mlflow
+      - name: Install MLflow CLI
         shell: bash -l {0}
         run: |
-          conda install -y pip
-          pip install mlflow==2.19.0 scikit-learn pandas numpy
+          conda activate spotify-ci-env
+          pip install mlflow==2.19.0
 
       # Jalankan MLflow Project
-      - name: Run MLflow Project with Conda
+      - name: Run MLflow Project
         shell: bash -l {0}
         run: |
-          echo "PATH Conda: $PATH"
+          conda activate spotify-ci-env
           cd MLProject
           mlflow run . -P n_estimators=150 -P max_depth=15
