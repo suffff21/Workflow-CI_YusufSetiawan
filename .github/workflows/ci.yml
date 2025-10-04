@@ -1,4 +1,4 @@
-name: MLflow CI - Spotify Churn Project
+name: MLflow CI - Spotify Churn Project (Skilled)
 
 on:
   push:
@@ -14,27 +14,24 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Install Miniconda dengan environment khusus
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          activate-environment: spotify-ci-env
-          environment-file: MLProject/conda.yaml
           python-version: "3.12.7"
-          auto-update-conda: true
-          auto-activate-base: false
 
-      # Pastikan conda aktif dan install mlflow
-      - name: Install MLflow CLI
-        shell: bash -l {0}
+      - name: Install Dependencies
         run: |
-          conda activate spotify-ci-env
-          pip install mlflow==2.19.0
+          pip install mlflow==2.19.0 scikit-learn pandas numpy joblib
 
-      # Jalankan MLflow Project
       - name: Run MLflow Project
-        shell: bash -l {0}
         run: |
-          conda activate spotify-ci-env
           cd MLProject
           mlflow run . -P n_estimators=150 -P max_depth=15
+
+      - name: Upload Model Artifact to Repository
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: github-actions
+          author_email: github-actions@github.com
+          message: "Upload model artefak hasil retraining otomatis"
+          add: "MLProject/artefak/*.pkl"

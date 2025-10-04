@@ -1,6 +1,7 @@
-# modelling.py - untuk MLflow Project
 import argparse
 import pandas as pd
+import joblib
+import os
 import mlflow
 import mlflow.sklearn
 from sklearn.ensemble import RandomForestClassifier
@@ -19,18 +20,41 @@ X_test = pd.read_csv(f"{args.dataset_path}/X_test.csv")
 y_train = pd.read_csv(f"{args.dataset_path}/y_train.csv").squeeze()
 y_test = pd.read_csv(f"{args.dataset_path}/y_test.csv").squeeze()
 
+# Inisialisasi MLflow lokal
 mlflow.set_tracking_uri("file:./mlruns")
-mlflow.set_experiment("Spotify Churn Workflow CI")
+mlflow.set_experiment("Spotify Churn CI - Skilled")
 
-mlflow.sklearn.autolog()
+with mlflow.start_run(run_name="RF_CI_Skilled"):
+    # Training model
+    model = RandomForestClassifier(
+        n_estimators=args.n_estimators,
+        max_depth=args.max_depth,
+        random_state=42
+    )
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
 
-model = RandomForestClassifier(
-    n_estimators=args.n_estimators,
-    max_depth=args.max_depth,
-    random_state=42
-)
-model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
+    # Hitung metrik
+    acc = accuracy_score(y_test, y_pred)
+    prec = precision_score(y_test, y_pred)
+    rec = recall_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
 
-acc = accuracy_score(y_test, y_pred)
-print(f"Model selesai dilatih. Akurasi: {acc:.4f}")
+    # Logging manual
+    mlflow.log_param("n_estimators", args.n_estimators)
+    mlflow.log_param("max_depth", args.max_depth)
+    mlflow.log_metric("accuracy", acc)
+    mlflow.log_metric("precision", prec)
+    mlflow.log_metric("recall", rec)
+    mlflow.log_metric("f1_score", f1)
+
+    # Simpan model secara lokal
+    os.makedirs("artefak", exist_ok=True)
+    model_path = f"artefak/model_n{args.n_estimators}_d{args.max_depth}.pkl"
+    joblib.dump(model, model_path)
+
+    # Simpan model ke MLflow
+    mlflow.sklearn.log_model(model, artifact_path="model")
+
+    print(f"Model tersimpan di: {model_path}")
+    print(f"Akurasi: {acc:.4f}")
