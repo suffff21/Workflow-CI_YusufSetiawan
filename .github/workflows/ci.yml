@@ -23,10 +23,10 @@ jobs:
         run: |
           pip install mlflow==2.19.0 scikit-learn pandas numpy joblib
 
-      - name: Run MLflow Project
+      - name: Run Model Training Script
         run: |
           cd MLProject
-          mlflow run . -P n_estimators=150 -P max_depth=15
+          python modelling.py --n_estimators 150 --max_depth 15 --dataset_path namadataset_preprocessing
 
       - name: Upload Model Artifact to Repository
         uses: EndBug/add-and-commit@v9
