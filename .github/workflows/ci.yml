@@ -1,0 +1,29 @@
+name: MLflow CI - Spotify Churn Project
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.7"
+
+      - name: Install MLflow
+        run: |
+          pip install mlflow==2.19.0 scikit-learn pandas numpy
+
+      - name: Run MLflow Project
+        run: |
+          cd MLProject
+          mlflow run . -P n_estimators=150 -P max_depth=15
