@@ -1,4 +1,4 @@
-name: MLflow CI - Spotify Churn Project (Advanced)
+name: MLflow CI - Spotify Churn Project (Advanced - Fixed)
 
 on:
   push:
@@ -42,11 +42,16 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker Image using MLflow
+      - name: Build Docker Image from Model
         run: |
           cd MLProject
-          # Bangun image dari model terbaru di artefak MLflow
-          mlflow models build-docker -m "runs:/latest/model" -n ${{ secrets.DOCKER_USERNAME }}/spotify-churn-ci:latest
+          echo "FROM python:3.12-slim" > Dockerfile
+          echo "WORKDIR /app" >> Dockerfile
+          echo "COPY artefak/model_n150_d15.pkl /app/model.pkl" >> Dockerfile
+          echo "COPY modelling.py /app/modelling.py" >> Dockerfile
+          echo "RUN pip install scikit-learn pandas numpy mlflow==2.19.0 joblib" >> Dockerfile
+          echo 'CMD ["python", "modelling.py", "--n_estimators", "150", "--max_depth", "15", "--dataset_path", "spotify_churn_dataset_preprocessing"]' >> Dockerfile
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/spotify-churn-ci:latest .
 
       - name: Push Docker Image to Docker Hub
         run: |
