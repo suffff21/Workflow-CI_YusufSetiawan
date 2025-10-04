@@ -26,7 +26,7 @@ jobs:
       - name: Run Modelling Script Directly (Retraining)
         run: |
           cd MLProject
-          python modelling.py --n_estimators 150 --max_depth 15 --dataset_path namadataset_preprocessing
+          python modelling.py --n_estimators 150 --max_depth 15 --dataset_path spotify_churn_dataset_preprocessing
 
       - name: Upload Model Artifact to Repository
         uses: EndBug/add-and-commit@v9
