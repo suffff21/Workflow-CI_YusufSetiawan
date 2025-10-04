@@ -14,14 +14,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
         with:
+          activate-environment: spotify-churn-env
+          environment-file: MLProject/conda.yaml
           python-version: "3.12.7"
+          auto-activate-base: false
 
-      - name: Install MLflow
+      - name: Install MLflow (global)
         run: |
-          pip install mlflow==2.19.0 scikit-learn pandas numpy
+          pip install mlflow==2.19.0
 
       - name: Run MLflow Project
         run: |
