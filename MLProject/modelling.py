@@ -24,7 +24,7 @@ y_test = pd.read_csv(f"{args.dataset_path}/y_test.csv").squeeze()
 mlflow.set_tracking_uri("file:./mlruns")
 mlflow.set_experiment("Spotify Churn CI - Skilled")
 
-with mlflow.start_run(run_name="RF_CI_Skilled"):
+with mlflow.start_run(run_name="RF_CI_Skilled", nested=True):
     # Training model
     model = RandomForestClassifier(
         n_estimators=args.n_estimators,
